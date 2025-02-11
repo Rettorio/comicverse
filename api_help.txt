@@ -1,0 +1,18 @@
+API ENDPOINT DAN PENGGUNAAN PADA SCREEN :
+
+pada landing tab latest =>
+    https://api.i-as.dev/api/komiku/latest
+
+pada landing tab Categori/Genre =>
+    https://api.i-as.dev/api/komiku/genre/{kategori}
+
+untuk dapat list Categori/Genre =>
+    https://api.i-as.dev/api/komiku/genre/
+
+pada komik detail =>
+    https://api.i-as.dev/api/komiku/detail/isshou-senkin
+    https://api.i-as.dev/api/komiku/detail/{slug}
+
+pada komik baca chapter =>
+    https://api.i-as.dev/api/komiku/chapter/isshou-senkin-chapter-11-bahasa-indonesia
+    https://api.i-as.dev/api/komiku/chapter/{slug}
