@@ -1,4 +1,4 @@
-import 'package:comicverse/home/home_scren.dart';
+import 'package:comicverse/home/home.scren.dart';
 import 'package:flutter/material.dart';
 
 void main() {

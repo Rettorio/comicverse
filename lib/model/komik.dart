@@ -30,3 +30,13 @@ Future<List<Komik>> fetchKomik() async {
     throw Exception('Failed to load komik');
   }
 }
+
+Future<List<Komik>> fetchKomikByGenre(String genreSlug) async {
+  final response = await http.get(Uri.parse('https://api.i-as.dev/api/komiku/genre/$genreSlug'));
+  if (response.statusCode == 200) {
+    final List<dynamic>  jsonData = json.decode(response.body)['genreDetail'];
+    return jsonData.map((e) => Komik.fromJson(e)).toList();
+  } else {
+    throw Exception('Failed to load komik');
+  }
+}

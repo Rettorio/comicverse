@@ -1,5 +1,6 @@
 import 'dart:ui';
-
+import 'package:comicverse/app_drawer.dart';
+import 'package:comicverse/home/tab_content.dart';
 import 'package:comicverse/model/komik.dart';
 import 'package:flutter/material.dart';
 
@@ -12,16 +13,33 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController tabController;
+  Future<List<Komik>>? _contentData;
+  final tabs = [
+    TabContent(title: "Latest", slug: "latest", collector: fetchKomik),
+    TabContent(title: "Mecha", slug: "mecha", collector: TabContent.collectorMaker("mecha")),
+    TabContent(title: "Isekai", slug: "isekai", collector: TabContent.collectorMaker("isekai")),
+  ];
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 @override
-  void initState() {
-    tabController = TabController(length: 3, vsync: this);
-    super.initState();
-  }
+void initState() {
+  super.initState();
+  tabController = TabController(length: tabs.length, vsync: this);
+  _loadContent(0);
+}
+
+void _loadContent(int activeTab) {
+  setState(() {
+    _contentData = tabs[activeTab].collector();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
+      drawer: AppDrawer(),
       backgroundColor: Colors.grey[900], // Warna latar belakang gelap
       appBar: AppBar(
         backgroundColor: Colors.black, // Warna header gelap
@@ -32,11 +50,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.white), // Ikon menu
-          onPressed: () {},
+          onPressed: () {
+            scaffoldKey.currentState!.openDrawer();
+          },
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.white), // Ikon pencarian
+            icon: const Icon(Icons.more_vert, color: Colors.white), // Ikon pencarian
             onPressed: () {},
           ),
         ],
@@ -47,8 +67,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           _buildTabNavigation(),
           // Daftar Manga (bungkus dengan Expanded agar fleksibel)
           Expanded(
-            child: FutureBuilder(
-                future: fetchKomik(),
+            child: FutureBuilder<List<Komik>>(
+                future: _contentData,
                 builder: (context, snapshot)  {
                   if(snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -83,17 +103,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             child: TabBar(
               controller: tabController,
               indicatorColor: Colors.white, // Warna indikator tab
-              tabs: const [
-                Tab(text: 'Reading Now'),
-                Tab(text: 'My Favourites'),
-                Tab(text: 'To Read'),
-              ],
+              tabs: tabs.map((tab) {
+                return Tab(text: tab.title,);
+              }).toList(),
+              onTap: _loadContent,
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.white), // Tombol tambah
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.add, color: Colors.white), // Tombol tambah
+          //   onPressed: () {
+          //   },
+          // ),
         ],
       ),
     );
