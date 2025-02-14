@@ -1,3 +1,4 @@
+import 'package:comicverse/home/library_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,7 +14,10 @@ class AppDrawer extends StatelessWidget {
           UserAccountsDrawerHeader(
             accountName: Text(
               "ComicVerse",
-              style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white),
+              style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
             ),
             accountEmail: Text(
               "Baca manga favorit-mu kapan saja dimana saja!",
@@ -21,11 +25,8 @@ class AppDrawer extends StatelessWidget {
               maxLines: 3,
             ),
             decoration: const BoxDecoration(
-              image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage("assets/coba5.jpeg")
-              )
-            ),
+                image: DecorationImage(
+                    fit: BoxFit.cover, image: AssetImage("assets/coba5.jpeg"))),
           ),
           ListTile(
             leading: const Icon(LucideIcons.home),
@@ -35,7 +36,13 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(LucideIcons.bookMarked),
             title: const Text("Library"),
-            onTap: () {},
+            onTap: () {
+              // Navigasi ke LibraryScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LibraryScreen()),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(LucideIcons.history),
@@ -48,10 +55,8 @@ class AppDrawer extends StatelessWidget {
             title: const Text("Logout"),
             onTap: () {},
           ),
-
         ],
       ),
     );
   }
-
 }
