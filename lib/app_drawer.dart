@@ -1,10 +1,11 @@
-import 'package:comicverse/library/library_screen.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:comicverse/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class AppDrawer extends StatelessWidget {
+  const AppDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -31,23 +32,17 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(LucideIcons.home),
             title: const Text("Home"),
-            onTap: () {},
+            onTap: () => Navigator.of(context).toHomeScreen(),
           ),
           ListTile(
             leading: const Icon(LucideIcons.bookMarked),
             title: const Text("Library"),
-            onTap: () {
-              // Navigasi ke LibraryScreen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LibraryScreen()),
-              );
-            },
+            onTap: () => Navigator.of(context).toLibraryScreen(),
           ),
           ListTile(
             leading: const Icon(LucideIcons.history),
             title: const Text("History"),
-            onTap: () {},
+            onTap: () => Navigator.of(context).toHistoryScreen(),
           ),
           const Divider(),
           ListTile(

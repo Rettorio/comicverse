@@ -1,4 +1,4 @@
-import 'package:comicverse/home/home_scren.dart';
+import 'package:comicverse/app_router.dart';
 import 'package:comicverse/theme/theme.dart';
 import 'package:comicverse/theme/util.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: theme.dark(),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      initialRoute: AppRouter.homeRoute,
+      onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
 }

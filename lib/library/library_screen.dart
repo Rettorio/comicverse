@@ -1,3 +1,4 @@
+import 'package:comicverse/app_drawer.dart';
 import 'package:flutter/material.dart';
 
 class LibraryScreen extends StatelessWidget {
@@ -26,7 +27,7 @@ class LibraryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Library'),
         centerTitle: true,
-        elevation: 0, // Menghilangkan shadow di AppBar
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -44,6 +45,7 @@ class LibraryScreen extends StatelessWidget {
           },
         ),
       ),
+      drawer: AppDrawer(),
     );
   }
 }
