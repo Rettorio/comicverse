@@ -1,4 +1,4 @@
-import 'package:comicverse/home/library_screen.dart';
+import 'package:comicverse/library/library_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,13 +20,13 @@ class AppDrawer extends StatelessWidget {
                   color: Colors.white),
             ),
             accountEmail: Text(
-              "Baca manga favorit-mu kapan saja dimana saja!",
+              "Baca komik favorit-mu kapan saja dimana saja!",
               style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
               maxLines: 3,
             ),
             decoration: const BoxDecoration(
                 image: DecorationImage(
-                    fit: BoxFit.cover, image: AssetImage("assets/coba5.jpeg"))),
+                    fit: BoxFit.cover, image: AssetImage("assets/drawer_header.jpeg"))),
           ),
           ListTile(
             leading: const Icon(LucideIcons.home),

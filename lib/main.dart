@@ -1,4 +1,6 @@
-import 'package:comicverse/home/home.scren.dart';
+import 'package:comicverse/home/home_scren.dart';
+import 'package:comicverse/theme/theme.dart';
+import 'package:comicverse/theme/util.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,10 +13,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = createTextTheme(context, "Poppins", "Poppins");
+
+    MaterialTheme theme = MaterialTheme(textTheme);
     return MaterialApp(
+      theme: theme.dark(),
       debugShowCheckedModeBanner: false,
-    home: HomePage(),
-     // Gunakan const di sini
+      home: HomePage(),
     );
   }
 }
