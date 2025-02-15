@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:comicverse/app_drawer.dart';
 import 'package:comicverse/home/tab_content.dart';
+import 'package:comicverse/model/genre.dart';
 import 'package:comicverse/model/komik.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,12 +16,30 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController tabController;
   Future<List<Komik>>? _contentData;
-  final tabs = [
+  final List<TabContent> tabs = [
     TabContent(title: "Latest", slug: "latest", collector: fetchKomik),
     TabContent(title: "Mecha", slug: "mecha", collector: TabContent.collectorMaker("mecha")),
     TabContent(title: "Isekai", slug: "isekai", collector: TabContent.collectorMaker("isekai")),
   ];
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  List<GenreKomik> genreKomik = List.empty();
+  
+  Future<void> loadGenre() async {
+    if(genreKomik.isEmpty) {
+      try {
+        final data = await fetchGenre();
+        debugPrint("first genre : ${data[0].slug}");
+        genreKomik = data;
+    } catch (e) {
+        return;
+      }
+    }
+    return;
+  }
+
+  bool isGenreInTab(String genre) {
+    return tabs.where((e) => e.slug == genre).toList().length > 1;
+  }
 
 @override
 void initState() {
@@ -34,9 +54,9 @@ void _loadContent(int activeTab) {
   });
 }
 
-
   @override
   Widget build(BuildContext context) {
+    loadGenre();
     return Scaffold(
       key: scaffoldKey,
       drawer: AppDrawer(),
@@ -53,10 +73,36 @@ void _loadContent(int activeTab) {
           },
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert), // Ikon pencarian
-            onPressed: () {},
-          ),
+          PopupMenuButton(
+            position: PopupMenuPosition.under,
+            tooltip: "show more",
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () {},
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(LucideIcons.search),
+                    const SizedBox(width: 5,),
+                    const Text("Cari Komik")
+                  ],
+                )
+              ),
+              PopupMenuItem(
+                  onTap: () {
+                    _buildTabBottomSheet(context);
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(LucideIcons.settings),
+                      const SizedBox(width: 5,),
+                      const Text("Atur Tab Genre")
+                    ],
+                  )
+              )
+            ]
+          )
         ],
       ),
       body: Column(
@@ -76,7 +122,7 @@ void _loadContent(int activeTab) {
                         child: const CircularProgressIndicator(),
                       ),
                     );
-                  } else if(snapshot.connectionState == ConnectionState.done || snapshot.hasData) {
+                  } else if(snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
                     final List<Komik> data = snapshot.data!;
                     return _buildMangaGrid(data);
                   } else {
@@ -90,6 +136,43 @@ void _loadContent(int activeTab) {
     );
   }
 
+  Future _buildTabBottomSheet(BuildContext context) async {
+    await loadGenre();
+    return showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SizedBox.expand(
+            child: Container(
+              margin: const EdgeInsets.only(top: 14, left: 24, right: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Pilih Genre Komik Untuk ditampilkan :",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 18),
+                  Wrap(
+                    spacing: 5.0,
+                    children: genreKomik.map((genre) {
+                      return FilterChip(
+                        label: Text(genre.title),
+                        onSelected: (select) => {
+                          setState(() {
+                            tabs.add(genre.toTabContent());
+                          })
+                        },
+                        selected: isGenreInTab(genre.slug),
+                      );
+                    }).toList(),
+                  )
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
   // Widget untuk Tab Navigasi
   Widget _buildTabNavigation() {
     return Container(// Warna latar tab
