@@ -2,8 +2,10 @@ import 'dart:ui';
 import 'package:comicverse/app_drawer.dart';
 import 'package:comicverse/app_router.dart';
 import 'package:comicverse/home/tab_content.dart';
+import 'package:comicverse/model/genre.dart';
 import 'package:comicverse/model/komik.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,6 +23,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     TabContent(title: "Isekai", slug: "isekai", collector: TabContent.collectorMaker("isekai")),
   ];
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  List<GenreKomik> genreKomik = List.empty();
+
+  Future<void> loadGenre() async {
+    if(genreKomik.isEmpty) {
+      try {
+        final data = await fetchGenre();
+        debugPrint("first genre : ${data[0].slug}");
+        genreKomik = data;
+    } catch (e) {
+        return;
+      }
+    }
+    return;
+  }
+
+  bool isGenreInTab(String genre) {
+    return tabs.where((e) => e.slug == genre).toList().length > 1;
+  }
 
 @override
 void initState() {
@@ -55,10 +75,36 @@ void _loadContent(int activeTab) {
           },
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert), // Ikon pencarian
-            onPressed: () {},
-          ),
+          PopupMenuButton(
+            position: PopupMenuPosition.under,
+            tooltip: "show more",
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () {},
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(LucideIcons.search),
+                    const SizedBox(width: 5,),
+                    const Text("Cari Komik")
+                  ],
+                )
+              ),
+              PopupMenuItem(
+                  onTap: () {
+                    // _buildTabBottomSheet(context);
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(LucideIcons.settings),
+                      const SizedBox(width: 5,),
+                      const Text("Atur Tab Genre")
+                    ],
+                  )
+              )
+            ]
+          )
         ],
       ),
       body: Column(
@@ -76,7 +122,7 @@ void _loadContent(int activeTab) {
                         child: Center(child: const CircularProgressIndicator(),),
                       ),
                     );
-                  } else if(snapshot.connectionState == ConnectionState.done || snapshot.hasData) {
+                  } else if(snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
                     final List<Komik> data = snapshot.data!;
                     return Expanded(
                           child: _buildMangaGrid(data)
