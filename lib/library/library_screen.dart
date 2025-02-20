@@ -142,7 +142,7 @@ class MangaCard extends StatelessWidget {
                 // Aksi ketika tombol play ditekan
               },
               child: Text(
-                'Play',
+                'Kunjungi',
                 style: TextStyle(
                   fontSize: 16.0,
                   color: Colors.blue, // Warna teks bisa disesuaikan
