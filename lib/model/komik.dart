@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'komik_detail.dart';
+
 class Komik {
   final String title;
   final String slug;
@@ -18,6 +20,10 @@ class Komik {
       view: json['view'],
       image: json['image'],
     );
+  }
+
+  DetailScreenArgs toDetailScreenArgs() {
+    return DetailScreenArgs(slug: slug, title: title, image: image);
   }
 }
 

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:comicverse/app_drawer.dart';
+import 'package:comicverse/app_router.dart';
 import 'package:comicverse/home/tab_content.dart';
 import 'package:comicverse/model/komik.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ void _loadContent(int activeTab) {
 
   @override
   Widget build(BuildContext context) {
+  final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       key: scaffoldKey,
       drawer: AppDrawer(),
@@ -63,28 +65,27 @@ void _loadContent(int activeTab) {
         children: [
           // Tab Navigasi
           _buildTabNavigation(),
-          // Daftar Manga (bungkus dengan Expanded agar fleksibel)
-          Expanded(
-            child: FutureBuilder<List<Komik>>(
+           FutureBuilder<List<Komik>>(
                 future: _contentData,
                 builder: (context, snapshot)  {
                   if(snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
                       child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: const CircularProgressIndicator(),
+                        width: screenSize.width,
+                        height: 500,
+                        child: Center(child: const CircularProgressIndicator(),),
                       ),
                     );
                   } else if(snapshot.connectionState == ConnectionState.done || snapshot.hasData) {
                     final List<Komik> data = snapshot.data!;
-                    return _buildMangaGrid(data);
+                    return Expanded(
+                          child: _buildMangaGrid(data)
+                    );
                   } else {
                     return Text("Tidak ada data");
                   }
                 }
             ),
-          ),
         ],
       ),
     );
@@ -92,26 +93,19 @@ void _loadContent(int activeTab) {
 
   // Widget untuk Tab Navigasi
   Widget _buildTabNavigation() {
-    return Container(// Warna latar tab
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
+    return Row(
         children: [
           Expanded(
             child: TabBar(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               controller: tabController,// Warna indikator tab
               tabs: tabs.map((tab) {
                 return Tab(text: tab.title,);
               }).toList(),
               onTap: _loadContent,
             ),
-          ),
-          // IconButton(
-          //   icon: const Icon(Icons.add, color: Colors.white), // Tombol tambah
-          //   onPressed: () {
-          //   },
-          // ),
-        ],
-      ),
+          )
+        ]
     );
   }
 
@@ -141,50 +135,59 @@ void _loadContent(int activeTab) {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.network(
-              komik.image,
-              fit: BoxFit.cover,
-              height: cardHeight,
-            ),
-          ),
-          Positioned(
-            left: 0,
-            bottom: 0,
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(bottomRight: Radius.circular(8.0), bottomLeft: Radius.circular(8.0)),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Blur intensity
-                child: Container(
-                  width: cardWidth,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4), // Optional: Rounded corners
-                  )
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).toDetail(komik.toDetailScreenArgs()),
+        child: Stack(
+          children: [
+            Hero(
+              tag: "komik-photo-${komik.slug}",
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  komik.image,
+                  fit: BoxFit.cover,
+                  height: cardHeight,
                 ),
               ),
             ),
-          ),
-          Positioned(
-            left: 10,
-            bottom: 10,
-            child: SizedBox(
-              width: cardWidth * 0.4,
-              child: Text(
-                komik.title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis
+            Positioned(
+              left: 0,
+              bottom: 0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(bottomRight: Radius.circular(8.0), bottomLeft: Radius.circular(8.0)),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Blur intensity
+                  child: Container(
+                    width: cardWidth,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.4), // Optional: Rounded corners
+                    )
+                  ),
                 ),
-                textAlign: TextAlign.start,
               ),
-            )
+            ),
+            Positioned(
+              left: 10,
+              bottom: 10,
+              child: SizedBox(
+                width: cardWidth * 0.4,
+                child: Hero(
+                  tag: "komik-title-${komik.slug}",
+                  child: Text(
+                    komik.title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              )
+          ),
+          ],
         ),
-        ],
       ),
     );
   }
