@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comicverse/model/komik_detail.dart';
 
 class KomikHistory {
   final String title;
@@ -14,6 +15,10 @@ class KomikHistory {
     required this.lastChapter,
     required this.terakhirBaca
   });
+
+   DetailScreenArgs toDetailScreenArgs() {
+     return DetailScreenArgs(slug: slug, title: title, image: image);
+   }
 
   // Convert a KomikHistory object to a Map for Firestore
   Map<String, dynamic> toFirestore() {

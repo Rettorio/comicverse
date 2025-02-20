@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'komik_detail.dart';
+
 class KomikLibrary {
   final String title;
   final String author;
@@ -16,6 +18,10 @@ class KomikLibrary {
     required this.totalChapter,
     required this.totalChapterbaca
   });
+
+  DetailScreenArgs toDetailScreenArgs() {
+    return DetailScreenArgs(slug: slug, title: title, image: image);
+  }
 
   // Convert a KomikLibrary object to a Map for Firestore
   Map<String, dynamic> toFirestore() {
