@@ -3,10 +3,13 @@ import 'package:comicverse/home/home_scren.dart';
 import 'package:comicverse/library/library_screen.dart';
 import 'package:flutter/material.dart';
 
+import 'details/detail_scren.dart';
+
 class AppRouter {
   static const homeRoute = "/";
   static const libraryRoute = "libraryRoute";
   static const historyRoute = "historyRoute";
+  static const komikDetailRoute = "komikDetailRoute";
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch(settings.name) {
@@ -25,6 +28,11 @@ class AppRouter {
             builder: (context) => HistoryScreen(),
             settings: settings
         );
+      case komikDetailRoute :
+        return MaterialPageRoute(
+            builder: (context) => MangaDetailPage(detailSlug: settings.arguments as String),
+            settings: settings
+        );
     }
     return null;
   }
@@ -39,5 +47,8 @@ extension NavigatorStateExtensions on NavigatorState {
 
   Future<void> toHistoryScreen() =>
       pushNamed(AppRouter.historyRoute);
+
+  Future<void> toDetail(String komikSlug) =>
+      pushNamed(AppRouter.komikDetailRoute, arguments: komikSlug);
 
 }

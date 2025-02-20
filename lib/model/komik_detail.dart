@@ -8,6 +8,7 @@ class KomikDetail {
   final String image;
   final String type;
   final String author;
+  final String status;
   final List<KomikChapter> chapters;
 
   KomikDetail({
@@ -17,7 +18,8 @@ class KomikDetail {
     required this.image,
     required this.type,
     required this.author,
-    required this.chapters
+    required this.chapters,
+    required this.status
   });
 
   factory KomikDetail.fromJson(Map<String, dynamic> json, List<KomikChapter> chapters) {
@@ -28,7 +30,8 @@ class KomikDetail {
       type: json['type'],
       author: json['author'],
       chapters: chapters,
-      image: json['image']
+      image: json['image'],
+      status: json['status']
     );
   }
 }
@@ -57,10 +60,11 @@ class KomikChapter{
 }
 
 Future<KomikDetail> fetchKomikDetail(String slug) async {
-  final response = await http.get(Uri.parse("https://api.i-as.dev/api/komiku/chapter/$slug"));
+  final response = await http.get(Uri.parse("https://api.i-as.dev/api/komiku/detail/$slug"));
   if(response.statusCode == 200) {
     final responses = json.decode(response.body);
-    final List<KomikChapter> chapters = responses["chapters"].map((e) => KomikChapter.fromJson(e));
+    final List<dynamic> chapterJson = json.decode(response.body)['chapters'];
+    final List<KomikChapter> chapters = chapterJson.map((e) => KomikChapter.fromJson(e)).toList();
     return KomikDetail.fromJson(responses, chapters);
   } else {
     throw Exception('Failed to load komik detail');
