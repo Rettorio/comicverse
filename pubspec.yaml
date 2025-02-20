@@ -39,6 +39,8 @@ dependencies:
   shimmer: ^3.0.0
   google_fonts: ^6.2.1
   lucide_icons: ^0.257.0
+  firebase_core: ^3.10.1
+  cloud_firestore: ^5.6.3
 
 dev_dependencies:
   flutter_test:
