@@ -59,6 +59,18 @@ class KomikChapter{
   }
 }
 
+class DetailScreenArgs {
+  final String slug;
+  final String title;
+  final String image;
+
+  DetailScreenArgs({
+    required this.slug,
+    required this.title,
+    required this.image
+  });
+}
+
 Future<KomikDetail> fetchKomikDetail(String slug) async {
   final response = await http.get(Uri.parse("https://api.i-as.dev/api/komiku/detail/$slug"));
   if(response.statusCode == 200) {
