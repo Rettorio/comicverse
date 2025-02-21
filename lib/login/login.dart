@@ -1,7 +1,50 @@
+import 'dart:async';
+
+import 'package:comicverse/app_router.dart';
+import 'package:comicverse/services/auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  StreamSubscription<User?>? _authSubscription;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if(user != null && context.mounted) {
+        showSnackbar(context);
+        _authSubscription?.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+
+  void showSnackbar(BuildContext argContext) {
+    ScaffoldMessenger.of(argContext).showSnackBar(
+      const SnackBar(
+        content:
+        Text('Login berhasil!'),
+        backgroundColor: Colors.white70,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,11 +75,20 @@ class LoginPage extends StatelessWidget {
                 SizedBox(height: 20),
                 // Judul Aplikasi
                 Text(
-                  'Manga Reader',
+                  'ComicVerse',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    fontFamily: 'Poppins', // Gunakan font kustom jika ada
+                  ),
+                ),
+                Text(
+                  "You're favorite comic reader",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade500,
                     fontFamily: 'Poppins', // Gunakan font kustom jika ada
                   ),
                 ),
@@ -54,6 +106,7 @@ class LoginPage extends StatelessWidget {
                     hintStyle: TextStyle(color: Colors.white70),
                     prefixIcon: Icon(Icons.email, color: Colors.white70),
                   ),
+                  controller: _emailController,
                   style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(height: 20),
@@ -71,14 +124,13 @@ class LoginPage extends StatelessWidget {
                     hintStyle: TextStyle(color: Colors.white70),
                     prefixIcon: Icon(Icons.lock, color: Colors.white70),
                   ),
+                  controller: _passwordController,
                   style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(height: 30),
                 // Tombol Login
                 ElevatedButton(
-                  onPressed: () {
-                    // Aksi saat tombol login ditekan
-                  },
+                  onPressed: () => AuthService().signin(email: _emailController.text, password: _passwordController.text),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurpleAccent,
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -95,9 +147,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(height: 20),
                 // Opsi Lupa Password atau Daftar
                 TextButton(
-                  onPressed: () {
-                    // Aksi untuk lupa password atau daftar
-                  },
+                  onPressed: () => Navigator.of(context).toRegisterScreen(),
                   child: Text(
                     'Lupa Password? | Daftar Akun Baru',
                     style: TextStyle(color: Colors.white70),

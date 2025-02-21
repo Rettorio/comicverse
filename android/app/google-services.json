@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "717916264986",
+    "project_id": "comicverse-c6f9d",
+    "storage_bucket": "comicverse-c6f9d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:717916264986:android:ca5b9c8e82fef249254fa3",
+        "android_client_info": {
+          "package_name": "io.trios.comicverse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "717916264986-sijas3fm767u426svodjnp4aiejo3c9s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.trios.comicverse",
+            "certificate_hash": "470962ba3e04ff4ca58716f80c12920d9a6f2b52"
+          }
+        },
+        {
+          "client_id": "717916264986-vcfcq2t6j96a4kaerdme5vronoad21cf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3juqzBhNwjVjQs1GhOC_bFD5ld_QIm30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "717916264986-vcfcq2t6j96a4kaerdme5vronoad21cf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

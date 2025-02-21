@@ -1,4 +1,5 @@
 import 'package:comicverse/app_router.dart';
+import 'package:comicverse/services/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -48,7 +49,7 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(LucideIcons.logOut),
             title: const Text("Logout"),
-            onTap: () {},
+            onTap: () => AuthService().signout(context: context),
           ),
         ],
       ),

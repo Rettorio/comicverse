@@ -58,13 +58,13 @@ class AppRouter {
 
 extension NavigatorStateExtensions on NavigatorState {
   Future<void> toHomeScreen() =>
-      pushNamed(AppRouter.homeRoute);
+      pushReplacementNamed(AppRouter.homeRoute);
 
   Future<void> toLibraryScreen() =>
-      pushNamed(AppRouter.libraryRoute);
+      pushReplacementNamed(AppRouter.libraryRoute);
 
   Future<void> toHistoryScreen() =>
-      pushNamed(AppRouter.historyRoute);
+      pushReplacementNamed(AppRouter.historyRoute);
 
   Future<void> toDetail(DetailScreenArgs args) =>
       pushNamed(AppRouter.komikDetailRoute, arguments: args);

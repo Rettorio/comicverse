@@ -1,6 +1,52 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class RegisterPage extends StatelessWidget {
+import 'package:comicverse/app_router.dart';
+import 'package:comicverse/services/auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+class RegisterPage extends StatefulWidget {
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  StreamSubscription<User?>? _authSubscription;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _userController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if(user != null && context.mounted) {
+      debugPrint(user.toString());
+        showSnackbar();
+        Navigator.of(context).toHomeScreen();
+        _authSubscription?.cancel();
+      }
+    });
+  }
+
+  void showSnackbar() {
+    Fluttertoast.showToast(
+      msg: "registrasi berhasil",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.SNACKBAR,
+      backgroundColor: Colors.black54,
+      textColor: Colors.white,
+      fontSize: 14.0,
+    );
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +99,7 @@ class RegisterPage extends StatelessWidget {
                   hintStyle: TextStyle(color: Colors.white70),
                   prefixIcon: Icon(Icons.person, color: Colors.white70),
                 ),
+                controller: _userController,
                 style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 20),
@@ -69,6 +116,7 @@ class RegisterPage extends StatelessWidget {
                   hintStyle: TextStyle(color: Colors.white70),
                   prefixIcon: Icon(Icons.email, color: Colors.white70),
                 ),
+                controller: _emailController,
                 style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 20),
@@ -86,14 +134,13 @@ class RegisterPage extends StatelessWidget {
                   hintStyle: TextStyle(color: Colors.white70),
                   prefixIcon: Icon(Icons.lock, color: Colors.white70),
                 ),
+                controller: _passwordController,
                 style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 30),
               // Tombol Daftar
               ElevatedButton(
-                onPressed: () {
-                  // Aksi saat tombol daftar ditekan
-                },
+                onPressed: () => AuthService().signup(email: _emailController.text, username: _userController.text, password: _passwordController.text),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurpleAccent,
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -110,9 +157,7 @@ class RegisterPage extends StatelessWidget {
               SizedBox(height: 20),
               // Opsi Login
               TextButton(
-                onPressed: () {
-                  // Navigasi ke halaman login
-                },
+                onPressed: () => Navigator.of(context).toLoginScreen(),
                 child: Text(
                   'Sudah punya akun? Masuk',
                   style: TextStyle(color: Colors.white70),
