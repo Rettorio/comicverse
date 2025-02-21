@@ -4,7 +4,7 @@ import 'package:comicverse/app_router.dart';
 import 'package:comicverse/services/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      if(user != null && context.mounted) {
+      if (user != null && context.mounted) {
         showSnackbar(context);
         _authSubscription?.cancel();
       }
@@ -36,12 +36,60 @@ class _LoginPageState extends State<LoginPage> {
   void showSnackbar(BuildContext argContext) {
     ScaffoldMessenger.of(argContext).showSnackBar(
       const SnackBar(
-        content:
-        Text('Login berhasil!'),
+        content: Text('Login berhasil!'),
         backgroundColor: Colors.white70,
         behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: 3),
       ),
+    );
+  }
+
+  void _showResetPasswordDialog(BuildContext context) {
+    final TextEditingController _resetEmailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Reset Password'),
+          content: TextField(
+            controller: _resetEmailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(
+              hintText: 'Masukkan email Anda',
+              prefixIcon: Icon(Icons.email),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String email = _resetEmailController.text.trim();
+                if (email.isEmpty) {
+                  Fluttertoast.showToast(
+                    msg: 'Email tidak boleh kosong.',
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                } else {
+                  await AuthService().resetPassword(email: email);
+                  Navigator.of(context).pop();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurpleAccent,
+              ),
+              child: Text('Kirim'),
+            ),  
+          ],
+        );
+      },
     );
   }
 
@@ -62,25 +110,23 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Gambar Ilustrasi Manga
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
-                    'assets/drawer_header.jpeg', // Ganti dengan path gambar ilustrasi kamu
+                    'assets/drawer_header.jpeg',
                     width: 200,
                     height: 200,
                     fit: BoxFit.cover,
                   ),
                 ),
                 SizedBox(height: 20),
-                // Judul Aplikasi
                 Text(
                   'ComicVerse',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    fontFamily: 'Poppins', // Gunakan font kustom jika ada
+                    fontFamily: 'Poppins',
                   ),
                 ),
                 Text(
@@ -89,11 +135,10 @@ class _LoginPageState extends State<LoginPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.grey.shade500,
-                    fontFamily: 'Poppins', // Gunakan font kustom jika ada
+                    fontFamily: 'Poppins',
                   ),
                 ),
                 SizedBox(height: 40),
-                // Input Field Email
                 TextField(
                   decoration: InputDecoration(
                     filled: true,
@@ -110,7 +155,6 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(height: 20),
-                // Input Field Password
                 TextField(
                   obscureText: true,
                   decoration: InputDecoration(
@@ -128,9 +172,10 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(height: 30),
-                // Tombol Login
                 ElevatedButton(
-                  onPressed: () => AuthService().signin(email: _emailController.text, password: _passwordController.text),
+                  onPressed: () => AuthService().signin(
+                      email: _emailController.text,
+                      password: _passwordController.text),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurpleAccent,
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -145,13 +190,72 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Opsi Lupa Password atau Daftar
-                TextButton(
-                  onPressed: () => Navigator.of(context).toRegisterScreen(),
-                  child: Text(
-                    'Lupa Password? | Daftar Akun Baru',
-                    style: TextStyle(color: Colors.white70),
+                Center(
+                  child: GestureDetector(
+                    onTap: () async {
+                      await AuthService().signInWithGoogle();
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 3,
+                            offset: Offset(1, 1),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/google.jpeg',
+                            width: 24,
+                            height: 24,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Login dengan Google',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () => _showResetPasswordDialog(context),
+                      child: Text(
+                        'Lupa Password?',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                    Text(
+                      '|',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).toRegisterScreen();
+                      },
+                      child: Text(
+                        'Daftar Akun Baru',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
