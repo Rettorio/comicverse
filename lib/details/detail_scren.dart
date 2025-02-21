@@ -29,109 +29,110 @@ class MangaDetailPage extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListView(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Cover Komik
-                  Hero(
-                    tag: "komik-photo-${args.slug}",
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        args.image, // Ganti dengan URL cover komik
-                        width: 120,
-                        height: 180,
-                        fit: BoxFit.cover,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Cover Komik
+                    Hero(
+                      tag: "komik-photo-${args.slug}",
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          args.image, // Ganti dengan URL cover komik
+                          width: 120,
+                          height: 180,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: 16),
-                  // Judul, Penulis, dan Tag
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Hero(
-                          tag: "komik-title-${args.slug}",
-                          child: Text(
-                            args.title,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                    SizedBox(width: 16),
+                    // Judul, Penulis, dan Tag
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Hero(
+                            tag: "komik-title-${args.slug}",
+                            child: Text(
+                              args.title,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 5,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        FutureBuilder(
-                            future: futureData,
-                            builder: (context, snapshot) {
-                              if(snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
-                                return SizedBox(
-                                  height: 300,
-                                  width: 100,
-                                );
-                              }
-                              final komik = snapshot.data;
-                              if(komik == null) {
-                                return SizedBox(
-                                  height: 300,
-                                  width: 100,
-                                );
-                              }
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    komik.author,
-                                    style: TextStyle(
-                                      color: Colors.grey[400],
-                                      fontSize: 16,
+                          SizedBox(height: 8),
+                          FutureBuilder(
+                              future: futureData,
+                              builder: (context, snapshot) {
+                                if(snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
+                                  return SizedBox(
+                                    height: 300,
+                                    width: 100,
+                                  );
+                                }
+                                final komik = snapshot.data;
+                                if(komik == null) {
+                                  return SizedBox(
+                                    height: 300,
+                                    width: 100,
+                                  );
+                                }
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      komik.author,
+                                      style: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Wrap(
-                                    spacing: 8,
-                                    children: [
-                                      Chip(
-                                        label: Text(komik.status, style: TextStyle(color: Colors.white)),
-                                        backgroundColor: Colors.blue[800],
-                                      ),
-                                      Chip(
-                                        label: Text(komik.type, style: TextStyle(color: Colors.white)),
-                                        backgroundColor: Colors.blue[800],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            }
-                        )
-                      ],
+                                    SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 8,
+                                      children: [
+                                        Chip(
+                                          label: Text(komik.status, style: TextStyle(color: Colors.white)),
+                                          backgroundColor: Colors.blue[800],
+                                        ),
+                                        Chip(
+                                          label: Text(komik.type, style: TextStyle(color: Colors.white)),
+                                          backgroundColor: Colors.blue[800],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              }
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              FutureBuilder(
-                  future: futureData,
-                  builder: (context, snapshot) {
-                    if(snapshot.hasError) {
-                      return Center(child: Text("Something went wrong ${snapshot.error}"));
-                    }
-                    if(snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    final komik = snapshot.data;
-                    if(komik == null) {
-                      return Expanded(child: Center(child: Text("tidak ada komik")));
-                    }
-                    return Column(
+                  ],
+                ),
+                SizedBox(height: 16),
+                FutureBuilder(
+                    future: futureData,
+                    builder: (context, snapshot) {
+                      if(snapshot.hasError) {
+                        return Center(child: Text("Something went wrong ${snapshot.error}"));
+                      }
+                      if(snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      final komik = snapshot.data;
+                      if(komik == null) {
+                        return Expanded(child: Center(child: Text("tidak ada komik")));
+                      }
+                      return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Deskripsi Komik
@@ -277,11 +278,12 @@ class MangaDetailPage extends StatelessWidget {
                             },
                           ),
                         ],
-                    );
-                  }
-              )
-            ],
-        ),
+                      );
+                    }
+                )
+              ],
+            ),
+          )
       ),
     );
   }
