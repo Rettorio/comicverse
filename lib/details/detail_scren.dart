@@ -1,3 +1,4 @@
+import 'package:comicverse/app_router.dart';
 import 'package:comicverse/model/komik_detail.dart';
 import 'package:flutter/material.dart';
 
@@ -252,6 +253,7 @@ class MangaDetailPage extends StatelessWidget {
                             itemCount: komik.chapters.length, // Ganti dengan jumlah chapter yang sesuai
                             itemBuilder: (context, index) {
                               return ListTile(
+                                onTap: () => Navigator.of(context).viewChapter(komik.chapters[index].slug),
                                 contentPadding: EdgeInsets.zero,
                                 leading: Icon(Icons.menu, color: Colors.grey[400]),
                                 title: Text(
