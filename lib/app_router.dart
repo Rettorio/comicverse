@@ -1,11 +1,11 @@
-import 'dart:math';
-
 import 'package:comicverse/history/history_screen.dart';
 import 'package:comicverse/home/home_scren.dart';
 import 'package:comicverse/library/library_screen.dart';
 import 'package:comicverse/login/login.dart';
 import 'package:comicverse/model/komik_detail.dart';
 import 'package:comicverse/register/register.dart';
+import 'package:comicverse/widgets/protected_route.dart';
+import 'package:comicverse/widgets/search.dart';
 import 'package:flutter/material.dart';
 
 import 'details/detail_scren.dart';
@@ -17,27 +17,28 @@ class AppRouter {
   static const komikDetailRoute = "komikDetailRoute";
   static const loginRoute = "loginRoute";
   static const registerRoute = "registerRoute";
+  static const searchRoute = "searchRoute";
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch(settings.name) {
       case homeRoute :
         return MaterialPageRoute(
-            builder: (context) => const HomePage(),
+            builder: (context) => ProtectedRoute(child: const HomePage()),
             settings: settings
         );
       case libraryRoute :
         return MaterialPageRoute(
-            builder: (context) => LibraryScreen(),
+            builder: (context) => ProtectedRoute(child: LibraryScreen()),
             settings: settings
         );
       case historyRoute :
         return MaterialPageRoute(
-            builder: (context) => HistoryScreen(),
+            builder: (context) => ProtectedRoute(child: HistoryScreen()),
             settings: settings
         );
       case komikDetailRoute :
         return MaterialPageRoute(
-            builder: (context) => MangaDetailPage(args: settings.arguments as DetailScreenArgs),
+            builder: (context) => ProtectedRoute(child: MangaDetailPage(args: settings.arguments as DetailScreenArgs)),
             settings: settings
         );
       case loginRoute :
@@ -49,6 +50,12 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (context) => RegisterPage(),
             settings: settings
+        );
+       case searchRoute :
+        return MaterialPageRoute(
+            builder: (_) => ProtectedRoute(child: const SearchKomikScreen(),),
+            settings: settings,
+            fullscreenDialog: true
         );
 
     }
@@ -71,5 +78,6 @@ extension NavigatorStateExtensions on NavigatorState {
 
   Future<void> toLoginScreen() => pushReplacementNamed(AppRouter.loginRoute);
   Future<void> toRegisterScreen() => pushReplacementNamed(AppRouter.registerRoute);
+   Future<void> toSearchScreen() => pushNamed(AppRouter.searchRoute);
 
 }
