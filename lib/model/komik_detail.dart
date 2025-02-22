@@ -91,3 +91,14 @@ Future<KomikDetail> fetchKomikDetail(String slug) async {
     throw Exception('Failed to load komik detail');
   }
 }
+
+Future<List<String>> fetchKomikChapter(String slug) async {
+  final response = await http.get(Uri.parse("https://api.i-as.dev/api/komiku/chapter/$slug"));
+  if(response.statusCode == 200) {
+    final List<dynamic> jsonData = json.decode(response.body)["chapter"];
+    final List<String> chapters = jsonData.map((data) => data['image'].toString()).toList();
+    return chapters;
+  } else {
+    throw Exception("Failed to load komik chapters");
+  }
+}

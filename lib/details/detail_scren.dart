@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comicverse/data/firestore.dart';
+import 'package:comicverse/app_router.dart';
 import 'package:comicverse/model/komik_detail.dart';
 import 'package:comicverse/model/komik_history.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class _MangaDetailPageState extends State<MangaDetailPage> {
   bool isSaved = false;
   KomikHistory? history;
   late Future<KomikDetail> futureData;
-  
+
   @override
   void initState() {
     super.initState();
@@ -284,7 +285,7 @@ class _MangaDetailPageState extends State<MangaDetailPage> {
                             itemBuilder: (context, index) {
                               return ListTile(
                                 onTap: () {
-                              
+
                                   if(history == null) {
                                     history = KomikHistory(
                                       title: komik.title,
@@ -298,6 +299,7 @@ class _MangaDetailPageState extends State<MangaDetailPage> {
                                     history!.setNewChapter(komik.chapters[index].slug);
                                     createOrUpdateHistory(history!);
                                   }
+                                  Navigator.of(context).viewChapter(komik.chapters[index].slug);
                                 },
                                 contentPadding: EdgeInsets.zero,
                                 leading: Icon(Icons.menu, color: Colors.grey[400]),

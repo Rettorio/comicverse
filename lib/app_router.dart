@@ -4,11 +4,12 @@ import 'package:comicverse/library/library_screen.dart';
 import 'package:comicverse/login/login.dart';
 import 'package:comicverse/model/komik_detail.dart';
 import 'package:comicverse/register/register.dart';
-import 'package:comicverse/widgets/protected_route.dart';
+import 'package:comicverse/widgets/protected_route.dart';g
 import 'package:comicverse/widgets/search.dart';
 import 'package:flutter/material.dart';
 
 import 'details/detail_scren.dart';
+import 'details/view_chapter.dart';
 
 class AppRouter {
   static const homeRoute = "/";
@@ -18,6 +19,7 @@ class AppRouter {
   static const loginRoute = "loginRoute";
   static const registerRoute = "registerRoute";
   static const searchRoute = "searchRoute";
+  static const viewChapterRoute = "viewChapterRoute";
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch(settings.name) {
@@ -51,6 +53,11 @@ class AppRouter {
             builder: (context) => RegisterPage(),
             settings: settings
         );
+      case viewChapterRoute:
+        return MaterialPageRoute(
+          builder: (context) => ViewChapter(komikSlug: settings.arguments as String),
+          settings: settings
+        );
        case searchRoute :
         return MaterialPageRoute(
             builder: (_) => ProtectedRoute(child: const SearchKomikScreen(),),
@@ -75,6 +82,8 @@ extension NavigatorStateExtensions on NavigatorState {
 
   Future<void> toDetail(DetailScreenArgs args) =>
       pushNamed(AppRouter.komikDetailRoute, arguments: args);
+
+  Future<void> viewChapter(String chapterSlug) => pushNamed(AppRouter.viewChapterRoute, arguments: chapterSlug);
 
   Future<void> toLoginScreen() => pushReplacementNamed(AppRouter.loginRoute);
   Future<void> toRegisterScreen() => pushReplacementNamed(AppRouter.registerRoute);
