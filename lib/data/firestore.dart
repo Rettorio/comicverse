@@ -28,12 +28,17 @@ Future<void> addToLibrary(KomikLibrary komik) async {
   await db.collection("library").add(komik.toFirestore(authorUid));
 }
 
+
 Future<void> createOrUpdateHistory(KomikHistory history) async {
+  final authorUid = FirebaseAuth.instance.currentUser?.uid;
+  if(authorUid == null) {
+    throw Exception("Cannot find user instance. login first!");
+  }
   try {
     if(history.id == '') {
-      await db.collection("history").add(history.toFirestore());
+      await db.collection("history").add(history.toFirestore(authorUid));
     } else {
-      await db.collection("history").doc(history.id).set(history.toFirestore());
+      await db.collection("history").doc(history.id).set(history.toFirestore(authorUid));
     }
   } catch (e) {
     debugPrint('Error creating/updating document: $e');
@@ -52,6 +57,23 @@ Future<KomikHistory?> fetchKomikHistory(String komikSlug) async {
   } else {
     return null;
   }
+}
+
+Future<List<KomikHistory>> fetchAllKomikHistory() async {
+  final authorUid = FirebaseAuth.instance.currentUser?.uid;
+  print(" uid: $authorUid");
+  if(authorUid == null) {
+    throw Exception("Cannot find user instance. login first!");
+  }
+  try {
+    final fetchCollection = await db.collection("history").where("uid", isEqualTo: authorUid).get();
+    final data = fetchCollection.docs.map((doc) => KomikHistory.fromFirestore(doc)).toList();
+    return data;
+  } catch (error, stackTrace) {
+      debugPrint("Error fetching collection: $error");
+    debugPrint("Stack trace: $stackTrace");
+  }
+  return [];
 }
 
 Future<List<KomikLibrary>> fetchUserLibrary() async {

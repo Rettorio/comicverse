@@ -11,23 +11,27 @@ class KomikHistory {
   final Timestamp terakhirBaca;
 
   KomikHistory({
-    required this.id,
+    this.id = '',
     required this.title,
-    required this.uid,
+    this.uid = '',
     required this.image,
     required this.slug,
-    required this.chapters,
+    this.chapters = const [],
     required this.terakhirBaca
   });
+
+  void setNewChapter(String chapter) {
+    chapters.add(chapter);
+  }
 
    DetailScreenArgs toDetailScreenArgs() {
      return DetailScreenArgs(slug: slug, title: title, image: image);
    }
 
   // Convert a KomikHistory object to a Map for Firestore
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toFirestore(String uid) {
     return {
-      'id': '',
+      'id': id,
       'slug': slug,
       'uid': uid,
       'title': title,
@@ -44,7 +48,7 @@ class KomikHistory {
       id: doc.id,
       uid: data['uid'],
       title: data['title'],
-      chapters: data['chapters'],
+      chapters: data['chapters'].cast<String>(),
       image: data['image'],
       terakhirBaca: data['terakhirBaca'],
       slug: data['slug']

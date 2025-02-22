@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comicverse/data/firestore.dart';
 import 'package:comicverse/model/komik_detail.dart';
+import 'package:comicverse/model/komik_history.dart';
 import 'package:flutter/material.dart';
 
 class MangaDetailPage extends StatefulWidget {
@@ -12,6 +14,7 @@ class MangaDetailPage extends StatefulWidget {
 
 class _MangaDetailPageState extends State<MangaDetailPage> {
   bool isSaved = false;
+  KomikHistory? history;
   late Future<KomikDetail> futureData;
   
   @override
@@ -22,6 +25,11 @@ class _MangaDetailPageState extends State<MangaDetailPage> {
       setState(() {
         isSaved = exist;
       });
+    });
+    fetchKomikHistory(widget.args.slug).then((data) {
+      if(data != null) {
+        history = data;
+      }
     });
   }
   @override
@@ -275,6 +283,22 @@ class _MangaDetailPageState extends State<MangaDetailPage> {
                             itemCount: komik.chapters.length, // Ganti dengan jumlah chapter yang sesuai
                             itemBuilder: (context, index) {
                               return ListTile(
+                                onTap: () {
+                              
+                                  if(history == null) {
+                                    history = KomikHistory(
+                                      title: komik.title,
+                                      image: komik.image,
+                                      slug: komik.slug,
+                                      chapters: [komik.chapters[index].slug],
+                                      terakhirBaca: Timestamp.now(),
+                                      );
+                                      createOrUpdateHistory(history!);
+                                  } else {
+                                    history!.setNewChapter(komik.chapters[index].slug);
+                                    createOrUpdateHistory(history!);
+                                  }
+                                },
                                 contentPadding: EdgeInsets.zero,
                                 leading: Icon(Icons.menu, color: Colors.grey[400]),
                                 title: Text(

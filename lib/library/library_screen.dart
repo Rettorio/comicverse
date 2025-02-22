@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comicverse/app_router.dart';
 import 'package:comicverse/data/firestore.dart';
 import 'package:comicverse/model/komik_library.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,6 +49,7 @@ class LibraryScreen extends StatelessWidget {
                   title: komik.title,
                   author: komik.author,
                   cover: komik.image,
+                  onTap: () => Navigator.of(context).toDetail(komik.toDetailScreenArgs()),
                   lastReadDate: 'Terakhir dibaca: Chapter ${komik.totalChapterbaca}',
                   lastChapter: 'Total Chapter: ${komik.totalChapter}',
                 );
@@ -67,10 +69,12 @@ class MangaCard extends StatelessWidget {
   final String cover;
   final String lastReadDate;
   final String lastChapter;
+  final VoidCallback onTap;
 
   const MangaCard({
     required this.title,
     required this.author,
+    required this.onTap,
     required this.cover,
     required this.lastReadDate,
     required this.lastChapter,
@@ -146,9 +150,7 @@ class MangaCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextButton(
-              onPressed: () {
-                // Aksi ketika tombol play ditekan
-              },
+              onPressed: onTap,
               child: Text(
                 'Kunjungi',
                 style: TextStyle(
