@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:comicverse/history/history_screen.dart';
 import 'package:comicverse/home/home_scren.dart';
 import 'package:comicverse/library/library_screen.dart';
 import 'package:comicverse/login/login.dart';
 import 'package:comicverse/model/komik_detail.dart';
 import 'package:comicverse/register/register.dart';
+import 'package:comicverse/widgets/protected_route.dart';
 import 'package:comicverse/widgets/search.dart';
 import 'package:flutter/material.dart';
 
@@ -24,22 +23,22 @@ class AppRouter {
     switch(settings.name) {
       case homeRoute :
         return MaterialPageRoute(
-            builder: (context) => HomePage(search: settings.arguments as String,),
+            builder: (context) => ProtectedRoute(child: const HomePage()),
             settings: settings
         );
       case libraryRoute :
         return MaterialPageRoute(
-            builder: (context) => LibraryScreen(),
+            builder: (context) => ProtectedRoute(child: LibraryScreen()),
             settings: settings
         );
       case historyRoute :
         return MaterialPageRoute(
-            builder: (context) => HistoryScreen(),
+            builder: (context) => ProtectedRoute(child: HistoryScreen()),
             settings: settings
         );
       case komikDetailRoute :
         return MaterialPageRoute(
-            builder: (context) => MangaDetailPage(args: settings.arguments as DetailScreenArgs),
+            builder: (context) => ProtectedRoute(child: MangaDetailPage(args: settings.arguments as DetailScreenArgs)),
             settings: settings
         );
       case loginRoute :
@@ -54,8 +53,9 @@ class AppRouter {
         );
        case searchRoute :
         return MaterialPageRoute(
-            builder: (context) => SelectTagsScreen(),
-            settings: settings
+            builder: (_) => ProtectedRoute(child: const SearchKomikScreen(),),
+            settings: settings,
+            fullscreenDialog: true
         );
 
     }
@@ -64,8 +64,8 @@ class AppRouter {
 }
 
 extension NavigatorStateExtensions on NavigatorState {
-  Future<void> toHomeScreen({String? search}) =>
-      pushReplacementNamed(AppRouter.homeRoute, arguments: search);
+  Future<void> toHomeScreen() =>
+      pushReplacementNamed(AppRouter.homeRoute);
 
   Future<void> toLibraryScreen() =>
       pushReplacementNamed(AppRouter.libraryRoute);

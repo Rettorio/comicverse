@@ -6,10 +6,12 @@ import 'package:comicverse/model/genre.dart';
 import 'package:comicverse/model/komik.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/search_provider.dart';
 
 class HomePage extends StatefulWidget {
-  final String? search;
-  const HomePage({Key? key, this.search}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -17,14 +19,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController tabController;
+  late List<TabContent> tabs;
+  List<TabContentCollector> collectors = List.empty(growable: true);
+  bool isTabCreated = false;
   Future<List<Komik>>? _contentData;
-  List<TabContent> tabs = [
-    TabContent(title: "Mecha", slug: "mecha", collector: TabContent.collectorMaker("mecha")),
-    TabContent(title: "Isekai", slug: "isekai", collector: TabContent.collectorMaker("isekai")),
-  ];
+
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List<GenreKomik> genreKomik = List.empty();
-  
+
   Future<void> loadGenre() async {
     if(genreKomik.isEmpty) {
       try {
@@ -38,27 +40,33 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return;
   }
 
-  bool isGenreInTab(String genre) {
-    return tabs.where((e) => e.slug == genre).toList().length > 1;
+  // bool isGenreInTab(String genre) {
+  //   return tabs.where((e) => e.slug == genre).toList().length > 1;
+  // }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final searchText = context.read<SearchProvider>().searchText;
+    final noSearch = searchText.isEmpty;
+    setState(() {
+      tabs = [
+        TabContent(
+            title: noSearch ? "Latest" : searchText,
+            slug: noSearch ? "latest" : searchText,
+            collector: !noSearch ? () => fetchKomikFromSearch(searchText) : fetchKomik
+        ),
+        TabContent(title: "Mecha", slug: "mecha", collector: TabContent.collectorMaker("mecha")),
+        TabContent(title: "Isekai", slug: "isekai", collector: TabContent.collectorMaker("isekai")),
+      ];
+      tabController = TabController(length: tabs.length, vsync: this);
+    });
   }
 
-@override
-void initState() {
-  super.initState();
-  debugPrint("search: ${widget.search}");
-  final tabContent = TabContent(title: widget.search ?? "Latest", slug: widget.search ?? "latest", collector: (widget.search != null) ? () => fetchKomikFromSearch(widget.search!) : () => fetchKomik());
-  setState(() {
-    tabs.add(tabContent);
-  });
-  tabController = TabController(length: tabs.length, vsync: this);
-  _loadContent(0);
-}
-
-void _loadContent(int activeTab) {
-  setState(() {
-    _contentData = tabs[activeTab].collector();
-  });
-}
+// void _loadContent(int activeTab) {
+//   setState(() {
+//     _contentData = collectors[activeTab]();
+//   });
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +104,7 @@ void _loadContent(int activeTab) {
               ),
               PopupMenuItem(
                   onTap: () {
-                    _buildTabBottomSheet(context);
+                    // _buildTabBottomSheet(context);
                   },
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -114,27 +122,46 @@ void _loadContent(int activeTab) {
       body: Column(
         children: [
           // Tab Navigasi
-          _buildTabNavigation(),
+          Consumer<SearchProvider>(
+              builder: (context, searchProvider, child) => _buildTabNavigation(searchProvider)
+          ),
           // Daftar Manga (bungkus dengan Expanded agar fleksibel)
           Expanded(
-            child: FutureBuilder<List<Komik>>(
-                future: _contentData,
-                builder: (context, snapshot)  {
-                  if(snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: const CircularProgressIndicator(),
-                      ),
-                    );
-                  } else if(snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                    final List<Komik> data = snapshot.data!;
-                    return _buildMangaGrid(data);
-                  } else {
-                    return Text("Tidak ada data");
-                  }
-                }
+            child: Consumer<SearchProvider>(
+              builder: (context, searchProvider, child) {
+                return FutureBuilder<List<Komik>>(
+                    future: (tabController.index > 0) ? _contentData : searchProvider.contentCollector ?? _contentData,
+                    builder: (context, snapshot)  {
+                      if(snapshot.connectionState == ConnectionState.waiting || snapshot.data == null) {
+                        return Center(
+                          child: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: const CircularProgressIndicator(),
+                          ),
+                        );
+                      } else if(snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                        final List<Komik> data = snapshot.data!;
+                        if(data.isEmpty) {
+                          return Center(
+                            child: SizedBox(
+                              width: 300,
+                              height: 50,
+                              child: const Text("Tidak dapat menemukan komik.", textAlign: TextAlign.center,),
+                            ),
+                          );
+                        }
+                        debugPrint("data : ${data.first.title}");
+                        return _buildMangaGrid(data);
+                      } else if(snapshot.hasError) {
+                        debugPrint("data : ${snapshot.error}");
+                        return Text("Tidak ada data");
+                      } else {
+                        return Text("Tidak ada data");
+                      }
+                    }
+                );
+              },
             ),
           ),
         ],
@@ -142,45 +169,58 @@ void _loadContent(int activeTab) {
     );
   }
 
-  Future _buildTabBottomSheet(BuildContext context) async {
-    await loadGenre();
-    return showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return SizedBox.expand(
-            child: Container(
-              margin: const EdgeInsets.only(top: 14, left: 24, right: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Pilih Genre Komik Untuk ditampilkan :",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 18),
-                  Wrap(
-                    spacing: 5.0,
-                    children: genreKomik.map((genre) {
-                      return FilterChip(
-                        label: Text(genre.title),
-                        onSelected: (select) => {
-                          setState(() {
-                            tabs.add(genre.toTabContent());
-                          })
-                        },
-                        selected: isGenreInTab(genre.slug),
-                      );
-                    }).toList(),
-                  )
-                ],
-              ),
-            ),
-          );
-        }
-    );
-  }
+  // Future _buildTabBottomSheet(BuildContext context) async {
+  //   await loadGenre();
+  //   return showModalBottomSheet(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return SizedBox.expand(
+  //           child: Container(
+  //             margin: const EdgeInsets.only(top: 14, left: 24, right: 24),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Text(
+  //                   "Pilih Genre Komik Untuk ditampilkan :",
+  //                   style: Theme.of(context).textTheme.titleMedium,
+  //                 ),
+  //                 const SizedBox(height: 18),
+  //                 Wrap(
+  //                   spacing: 5.0,
+  //                   children: genreKomik.map((genre) {
+  //                     return FilterChip(
+  //                       label: Text(genre.title),
+  //                       onSelected: (select) => {
+  //                         setState(() {
+  //                           tabs.add(genre.toTabContent());
+  //                         })
+  //                       },
+  //                       selected: isGenreInTab(genre.slug),
+  //                     );
+  //                   }).toList(),
+  //                 )
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //   );
+  // }
   // Widget untuk Tab Navigasi
-  Widget _buildTabNavigation() {
+  Widget _buildTabNavigation(SearchProvider searchProvider) {
+    final searchText = searchProvider.searchText;
+    final currentTabs = tabs;
+    if(searchText.isNotEmpty) {
+      final tab = TabContent(
+          title: searchText,
+          slug: searchText,
+          collector: () => fetchKomikFromSearch(searchText)
+      );
+      currentTabs.replaceRange(0, 1, [tab]);
+      // searchProvider.updateContentCollector(tab.collector);
+    }
+
+    debugPrint("search: $searchText");
     return Container(// Warna latar tab
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -188,17 +228,16 @@ void _loadContent(int activeTab) {
           Expanded(
             child: TabBar(
               controller: tabController,// Warna indikator tab
-              tabs: tabs.map((tab) {
+              tabs: currentTabs.map((tab) {
                 return Tab(text: tab.title,);
               }).toList(),
-              onTap: _loadContent,
+              onTap: (index) {
+                setState(() {
+                  _contentData = currentTabs[index].collector();
+                });
+              },
             ),
           ),
-          // IconButton(
-          //   icon: const Icon(Icons.add, color: Colors.white), // Tombol tambah
-          //   onPressed: () {
-          //   },
-          // ),
         ],
       ),
     );

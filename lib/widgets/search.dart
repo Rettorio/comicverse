@@ -1,16 +1,23 @@
 import 'package:comicverse/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class SelectTagsScreen extends StatefulWidget {
+import '../model/komik.dart';
+import '../provider/search_provider.dart';
+
+class SearchKomikScreen extends StatefulWidget {
+  const SearchKomikScreen({super.key});
+
   @override
-  _SelectTagsScreenState createState() => _SelectTagsScreenState();
+  _SearchKomikScreenState createState() => _SearchKomikScreenState();
 }
 
-class _SelectTagsScreenState extends State<SelectTagsScreen> {
-  TextEditingController _searchController = TextEditingController();
+class _SearchKomikScreenState extends State<SearchKomikScreen> {
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final searchProvider = Provider.of<SearchProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: const Color.fromARGB(166, 255, 255, 255),
       appBar: AppBar(
@@ -29,7 +36,9 @@ class _SelectTagsScreenState extends State<SelectTagsScreen> {
           IconButton(
             onPressed: () {
               print("Pencarian: ${_searchController.text}");
-              Navigator.of(context).toHomeScreen(search: _searchController.text);
+              searchProvider.updateSearchText(_searchController.text);
+              searchProvider.updateContentCollector(() => fetchKomikFromSearch(_searchController.text));
+              Navigator.pop(context);
             },
             icon: Icon(Icons.search),
           ),
