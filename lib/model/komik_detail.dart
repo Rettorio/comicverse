@@ -1,7 +1,10 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+
+import 'komik_library.dart';
 class KomikDetail {
+  final String slug;
   final String title;
   final String desc;
   final String synopsis;
@@ -12,6 +15,7 @@ class KomikDetail {
   final List<KomikChapter> chapters;
 
   KomikDetail({
+    required this.slug,
     required this.title,
     required this.desc,
     required this.synopsis,
@@ -22,9 +26,10 @@ class KomikDetail {
     required this.status
   });
 
-  factory KomikDetail.fromJson(Map<String, dynamic> json, List<KomikChapter> chapters) {
+  factory KomikDetail.fromJson(Map<String, dynamic> json, List<KomikChapter> chapters, String slug) {
     return KomikDetail(
       title: json['title'],
+      slug: slug,
       desc: json['desc'],
       synopsis: json['synopsis'],
       type: json['type'],
@@ -33,6 +38,10 @@ class KomikDetail {
       image: json['image'],
       status: json['status']
     );
+  }
+
+  KomikLibrary toKomikLibrary()  {
+    return KomikLibrary(title: title, id: '', image: image, slug: slug, author: author, totalChapter: chapters.length, totalChapterbaca: 0);
   }
 }
 
@@ -77,7 +86,7 @@ Future<KomikDetail> fetchKomikDetail(String slug) async {
     final responses = json.decode(response.body);
     final List<dynamic> chapterJson = json.decode(response.body)['chapters'];
     final List<KomikChapter> chapters = chapterJson.map((e) => KomikChapter.fromJson(e)).toList();
-    return KomikDetail.fromJson(responses, chapters);
+    return KomikDetail.fromJson(responses, chapters, slug);
   } else {
     throw Exception('Failed to load komik detail');
   }

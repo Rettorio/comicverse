@@ -3,15 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'komik_detail.dart';
 
 class KomikLibrary {
+  final String id;
   final String title;
   final String author;
   final String image;
   final String slug;
+  final String? uid;
   final int totalChapter;
   final int totalChapterbaca;
 
   KomikLibrary({
     required this.title,
+    this.id = '',
+    this.uid,
     required this.image,
     required this.slug,
     required this.author,
@@ -24,8 +28,9 @@ class KomikLibrary {
   }
 
   // Convert a KomikLibrary object to a Map for Firestore
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toFirestore(String uid) {
     return {
+      'uid': uid,
       'title': title,
       'author': author,
       'image': image,
@@ -39,6 +44,8 @@ class KomikLibrary {
   static KomikLibrary fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return KomikLibrary(
+      id: doc.id,
+      uid: data['uid'],
       title: data['title'],
       author: data['author'],
       image: data['image'],

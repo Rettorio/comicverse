@@ -1,14 +1,31 @@
+import 'package:comicverse/data/firestore.dart';
 import 'package:comicverse/model/komik_detail.dart';
 import 'package:flutter/material.dart';
 
-class MangaDetailPage extends StatelessWidget {
+class MangaDetailPage extends StatefulWidget {
   final DetailScreenArgs args;
   const MangaDetailPage({super.key, required this.args});
 
   @override
+  State<MangaDetailPage> createState() => _MangaDetailPageState();
+}
+
+class _MangaDetailPageState extends State<MangaDetailPage> {
+  bool isSaved = false;
+  late Future<KomikDetail> futureData;
+  
+  @override
+  void initState() {
+    super.initState();
+    futureData = fetchKomikDetail(widget.args.slug);
+    fetchUserKomikInLibrary(widget.args.slug).then((exist) {
+      setState(() {
+        isSaved = exist;
+      });
+    });
+  }
+  @override
   Widget build(BuildContext context) {
-    final detailSlug = args.slug;
-    final futureData = fetchKomikDetail(detailSlug);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -38,11 +55,11 @@ class MangaDetailPage extends StatelessWidget {
                   children: [
                     // Cover Komik
                     Hero(
-                      tag: "komik-photo-${args.slug}",
+                      tag: "komik-photo-${widget.args.slug}",
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          args.image, // Ganti dengan URL cover komik
+                          widget.args.image, // Ganti dengan URL cover komik
                           width: 120,
                           height: 180,
                           fit: BoxFit.cover,
@@ -56,9 +73,9 @@ class MangaDetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Hero(
-                            tag: "komik-title-${args.slug}",
+                            tag: "komik-title-${widget.args.slug}",
                             child: Text(
-                              args.title,
+                              widget.args.title,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
@@ -177,8 +194,14 @@ class MangaDetailPage extends StatelessWidget {
                               SizedBox(width: 16),
                               Expanded(
                                 child: ElevatedButton(
-                                    onPressed: () {
-                                      // Aksi untuk tombol Liked
+                                    onPressed: () async {
+                                      if(!isSaved) {
+                                        final libraryInstance = komik.toKomikLibrary();
+                                        await addToLibrary(libraryInstance);
+                                        setState(() {
+                                          isSaved = true;
+                                        });
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.grey[800],
@@ -188,10 +211,10 @@ class MangaDetailPage extends StatelessWidget {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.bookmark_add_rounded, size: 24,),
+                                        Icon(isSaved ? Icons.bookmark : Icons.bookmark_add_rounded, size: 24,),
                                         const SizedBox(width: 5,),
                                         Text(
-                                          'Simpan',
+                                          isSaved ? "disimpan" : 'Simpan',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,

@@ -3,16 +3,20 @@ import 'package:comicverse/model/komik_detail.dart';
 
 class KomikHistory {
   final String title;
-  final String lastChapter;
+  final String uid;
+  final String id;
+  final List<String> chapters;
   final String image;
   final String slug;
   final Timestamp terakhirBaca;
 
   KomikHistory({
+    required this.id,
     required this.title,
+    required this.uid,
     required this.image,
     required this.slug,
-    required this.lastChapter,
+    required this.chapters,
     required this.terakhirBaca
   });
 
@@ -23,11 +27,13 @@ class KomikHistory {
   // Convert a KomikHistory object to a Map for Firestore
   Map<String, dynamic> toFirestore() {
     return {
+      'id': '',
+      'slug': slug,
+      'uid': uid,
       'title': title,
-      'lastChapter': lastChapter,
+      'chapters': chapters,
       'image': image,
       'terakhirBaca': terakhirBaca,
-      'slug': slug
     };
   }
 
@@ -35,8 +41,10 @@ class KomikHistory {
   static KomikHistory fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return KomikHistory(
+      id: doc.id,
+      uid: data['uid'],
       title: data['title'],
-      lastChapter: data['lastChapter'],
+      chapters: data['chapters'],
       image: data['image'],
       terakhirBaca: data['terakhirBaca'],
       slug: data['slug']

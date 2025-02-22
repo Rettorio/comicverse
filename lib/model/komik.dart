@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:comicverse/model/komik_library.dart';
 import 'package:http/http.dart' as http;
 
 import 'komik_detail.dart';
