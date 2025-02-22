@@ -6,6 +6,7 @@ import 'package:comicverse/library/library_screen.dart';
 import 'package:comicverse/login/login.dart';
 import 'package:comicverse/model/komik_detail.dart';
 import 'package:comicverse/register/register.dart';
+import 'package:comicverse/widgets/search.dart';
 import 'package:flutter/material.dart';
 
 import 'details/detail_scren.dart';
@@ -17,12 +18,13 @@ class AppRouter {
   static const komikDetailRoute = "komikDetailRoute";
   static const loginRoute = "loginRoute";
   static const registerRoute = "registerRoute";
+  static const searchRoute = "searchRoute";
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch(settings.name) {
       case homeRoute :
         return MaterialPageRoute(
-            builder: (context) => const HomePage(),
+            builder: (context) => HomePage(search: settings.arguments as String,),
             settings: settings
         );
       case libraryRoute :
@@ -50,6 +52,11 @@ class AppRouter {
             builder: (context) => RegisterPage(),
             settings: settings
         );
+       case searchRoute :
+        return MaterialPageRoute(
+            builder: (context) => SelectTagsScreen(),
+            settings: settings
+        );
 
     }
     return null;
@@ -57,8 +64,8 @@ class AppRouter {
 }
 
 extension NavigatorStateExtensions on NavigatorState {
-  Future<void> toHomeScreen() =>
-      pushReplacementNamed(AppRouter.homeRoute);
+  Future<void> toHomeScreen({String? search}) =>
+      pushReplacementNamed(AppRouter.homeRoute, arguments: search);
 
   Future<void> toLibraryScreen() =>
       pushReplacementNamed(AppRouter.libraryRoute);
@@ -71,5 +78,6 @@ extension NavigatorStateExtensions on NavigatorState {
 
   Future<void> toLoginScreen() => pushReplacementNamed(AppRouter.loginRoute);
   Future<void> toRegisterScreen() => pushReplacementNamed(AppRouter.registerRoute);
+   Future<void> toSearchScreen() => pushNamed(AppRouter.searchRoute);
 
 }

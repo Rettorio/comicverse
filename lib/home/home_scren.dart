@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final String? search;
+  const HomePage({Key? key, this.search}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -17,8 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController tabController;
   Future<List<Komik>>? _contentData;
-  final List<TabContent> tabs = [
-    TabContent(title: "Latest", slug: "latest", collector: fetchKomik),
+  List<TabContent> tabs = [
     TabContent(title: "Mecha", slug: "mecha", collector: TabContent.collectorMaker("mecha")),
     TabContent(title: "Isekai", slug: "isekai", collector: TabContent.collectorMaker("isekai")),
   ];
@@ -45,6 +45,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 @override
 void initState() {
   super.initState();
+  debugPrint("search: ${widget.search}");
+  final tabContent = TabContent(title: widget.search ?? "Latest", slug: widget.search ?? "latest", collector: (widget.search != null) ? () => fetchKomikFromSearch(widget.search!) : () => fetchKomik());
+  setState(() {
+    tabs.add(tabContent);
+  });
   tabController = TabController(length: tabs.length, vsync: this);
   _loadContent(0);
 }
@@ -79,7 +84,7 @@ void _loadContent(int activeTab) {
             tooltip: "show more",
             itemBuilder: (context) => [
               PopupMenuItem(
-                onTap: () {},
+                onTap: () => Navigator.of(context).toSearchScreen(),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
